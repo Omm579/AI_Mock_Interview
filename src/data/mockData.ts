@@ -10,7 +10,7 @@ export const mockUser: User = {
 
 export const mockDomains: InterviewDomain[] = [
   {
-    id: 'domain1',
+    id: 'web-dev',
     name: 'Web Development',
     description: 'Frontend and backend web development questions',
     icon: 'Code',
@@ -33,7 +33,7 @@ export const mockDomains: InterviewDomain[] = [
     ],
   },
   {
-    id: 'domain2',
+    id: 'data-science',
     name: 'Data Science',
     description: 'Statistics, machine learning, and data analysis',
     icon: 'BarChart',
@@ -56,216 +56,142 @@ export const mockDomains: InterviewDomain[] = [
     ],
   },
   {
-    id: 'domain3',
-    name: 'Product Management',
-    description: 'Product strategy, roadmap planning, and feature prioritization',
-    icon: 'Briefcase',
+    id: 'mobile-dev',
+    name: 'Mobile Development',
+    description: 'iOS, Android, and cross-platform development',
+    icon: 'Smartphone',
     difficultyLevels: [
       {
         id: 'beginner',
         name: 'Beginner',
-        description: 'Basic concepts and fundamentals',
+        description: 'Basic mobile development concepts',
       },
       {
         id: 'intermediate',
         name: 'Intermediate',
-        description: 'Advanced concepts and practical scenarios',
+        description: 'Advanced app development techniques',
       },
       {
         id: 'expert',
         name: 'Expert',
-        description: 'Complex problem-solving and strategy development',
+        description: 'Complex mobile architecture and optimization',
       },
     ],
   },
   {
-    id: 'domain4',
-    name: 'UX Design',
-    description: 'User research, interaction design, and usability testing',
-    icon: 'Palette',
+    id: 'cloud-computing',
+    name: 'Cloud Computing',
+    description: 'AWS, Azure, and cloud architecture',
+    icon: 'Cloud',
     difficultyLevels: [
       {
         id: 'beginner',
         name: 'Beginner',
-        description: 'Basic concepts and fundamentals',
+        description: 'Cloud basics and fundamentals',
       },
       {
         id: 'intermediate',
         name: 'Intermediate',
-        description: 'Advanced concepts and practical scenarios',
+        description: 'Advanced cloud services and deployment',
       },
       {
         id: 'expert',
         name: 'Expert',
-        description: 'Complex problem-solving and design systems',
+        description: 'Complex cloud architecture and security',
       },
     ],
   },
   {
-    id: 'domain5',
-    name: 'DevOps',
-    description: 'Continuous integration, deployment, and infrastructure management',
-    icon: 'Server',
+    id: 'cybersecurity',
+    name: 'Cybersecurity',
+    description: 'Network security and ethical hacking',
+    icon: 'Shield',
     difficultyLevels: [
       {
         id: 'beginner',
         name: 'Beginner',
-        description: 'Basic concepts and fundamentals',
+        description: 'Security fundamentals',
       },
       {
         id: 'intermediate',
         name: 'Intermediate',
-        description: 'Advanced concepts and practical scenarios',
+        description: 'Advanced security techniques',
       },
       {
         id: 'expert',
         name: 'Expert',
-        description: 'Complex problem-solving and infrastructure design',
+        description: 'Complex security architecture',
       },
     ],
   },
+  // Add more domains here...
 ];
 
 export const mockQuestions: Record<string, Question[]> = {
-  'domain1': [
+  'web-dev': [
     {
       id: 'q1',
-      text: 'Explain the difference between localStorage and sessionStorage in web browsers.',
-      domain: 'domain1',
-      difficulty: 'beginner',
+      text: 'Explain the concept of React hooks and their advantages over class components.',
+      domain: 'web-dev',
+      difficulty: 'intermediate',
+      sampleAnswer: 'React hooks are functions that allow you to use state and other React features in functional components. They were introduced in React 16.8 to simplify component logic and promote code reuse. Key advantages include:\n\n1. Simpler code structure\n2. Better code reuse through custom hooks\n3. Avoiding wrapper hell from render props and HOCs\n4. Consistent behavior across components\n\nCommon hooks include useState for state management, useEffect for side effects, and useContext for context consumption.',
+      keyPoints: [
+        'Understanding of hooks concept',
+        'Knowledge of key benefits',
+        'Familiarity with common hooks',
+        'Practical application examples'
+      ]
     },
     {
       id: 'q2',
-      text: 'What are React hooks and how do they improve component development?',
-      domain: 'domain1',
+      text: 'What is the Virtual DOM in React and how does it improve performance?',
+      domain: 'web-dev',
       difficulty: 'intermediate',
+      sampleAnswer: 'The Virtual DOM is a lightweight copy of the actual DOM that React maintains in memory. When state changes occur, React first updates the Virtual DOM and then compares it with the previous version using a diffing algorithm. Only the necessary changes are then applied to the actual DOM, minimizing expensive DOM operations.\n\nThis process, known as reconciliation, makes React applications more efficient by:\n1. Batching multiple DOM updates\n2. Reducing direct DOM manipulation\n3. Cross-browser consistency\n4. Efficient update processing',
+      keyPoints: [
+        'Understanding of Virtual DOM concept',
+        'Knowledge of reconciliation process',
+        'Performance benefits explanation',
+        'Real-world application'
+      ]
     },
+    // Add more web development questions...
+  ],
+  'data-science': [
     {
       id: 'q3',
-      text: 'Describe how you would architect a scalable web application that needs to handle millions of users.',
-      domain: 'domain1',
-      difficulty: 'expert',
+      text: 'Explain the difference between supervised and unsupervised learning with examples.',
+      domain: 'data-science',
+      difficulty: 'beginner',
+      sampleAnswer: 'Supervised learning uses labeled data to train models, while unsupervised learning finds patterns in unlabeled data. In supervised learning, the algorithm learns from input-output pairs (e.g., classifying emails as spam/not spam based on labeled examples). Unsupervised learning discovers hidden patterns without labeled outputs (e.g., customer segmentation based on purchasing behavior).\n\nExamples:\nSupervised: Classification (spam detection), Regression (price prediction)\nUnsupervised: Clustering (customer segmentation), Dimensionality reduction (PCA)',
+      keyPoints: [
+        'Clear distinction between types',
+        'Relevant examples',
+        'Understanding of applications',
+        'Technical accuracy'
+      ]
     },
+    // Add more data science questions...
+  ],
+  'mobile-dev': [
     {
       id: 'q4',
-      text: 'What is the difference between client-side and server-side rendering?',
-      domain: 'domain1',
+      text: 'Compare and contrast native vs cross-platform mobile development approaches.',
+      domain: 'mobile-dev',
       difficulty: 'intermediate',
+      sampleAnswer: 'Native development involves building apps specifically for iOS (Swift/Objective-C) or Android (Kotlin/Java), while cross-platform development uses frameworks like React Native or Flutter to build apps that work on multiple platforms.\n\nNative Pros:\n- Better performance\n- Full platform features\n- Better user experience\n\nCross-platform Pros:\n- Faster development\n- Code reusability\n- Lower cost\n- Easier maintenance',
+      keyPoints: [
+        'Understanding of both approaches',
+        'Pros and cons analysis',
+        'Framework knowledge',
+        'Real-world considerations'
+      ]
     },
-    {
-      id: 'q5',
-      text: 'Explain how CORS (Cross-Origin Resource Sharing) works and how to handle CORS issues.',
-      domain: 'domain1',
-      difficulty: 'intermediate',
-    },
+    // Add more mobile development questions...
   ],
-  'domain2': [
-    {
-      id: 'q6',
-      text: 'What is the difference between supervised and unsupervised learning?',
-      domain: 'domain2',
-      difficulty: 'beginner',
-    },
-    {
-      id: 'q7',
-      text: 'Explain how gradient boosting algorithms work and when you would use them.',
-      domain: 'domain2',
-      difficulty: 'intermediate',
-    },
-    {
-      id: 'q8',
-      text: 'How would you design an anomaly detection system for real-time network traffic?',
-      domain: 'domain2',
-      difficulty: 'expert',
-    },
-  ],
+  // Add more domains and questions...
 };
 
 export const mockInterviews: Interview[] = [
-  {
-    id: 'interview1',
-    session: {
-      id: 'session1',
-      userId: 'user123',
-      domainId: 'domain1',
-      difficultyId: 'intermediate',
-      status: 'completed',
-      startTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      endTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 30 * 60 * 1000).toISOString(),
-      questions: [mockQuestions['domain1'][1], mockQuestions['domain1'][3]],
-      answers: [
-        {
-          id: 'answer1',
-          questionId: 'q2',
-          text: 'React hooks are functions that let you use state and other React features without writing a class. They were introduced in React 16.8 and help simplify component logic.',
-          feedback: {
-            score: 75,
-            strengths: ['Basic understanding is correct', 'Mentioned when hooks were introduced'],
-            improvements: ['Could elaborate more on specific hooks', 'No mention of rules of hooks'],
-            summary: 'Good basic answer but lacks depth and examples.'
-          },
-          timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 5 * 60 * 1000).toISOString(),
-        },
-        {
-          id: 'answer2',
-          questionId: 'q4',
-          text: 'Client-side rendering happens in the browser while server-side rendering happens on the server before sending to the browser. CSR is good for interactive apps but has SEO challenges.',
-          feedback: {
-            score: 80,
-            strengths: ['Clear distinction between CSR and SSR', 'Mentioned SEO implications'],
-            improvements: ['Could discuss performance implications', 'No mention of hydration or first contentful paint'],
-            summary: 'Good answer that covers the fundamentals but could go deeper into technical aspects.'
-          },
-          timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 15 * 60 * 1000).toISOString(),
-        }
-      ],
-      totalScore: 78,
-      summary: {
-        strengths: ['Good basic understanding of web technologies', 'Clear communication style'],
-        improvements: ['Need more technical depth in answers', 'Should provide more concrete examples'],
-        overallFeedback: 'You have a solid foundation in web development concepts but should focus on deepening your technical knowledge and providing more specific examples in your answers.'
-      }
-    },
-    domain: 'Web Development',
-    difficulty: 'Intermediate',
-    date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleString(),
-    score: 78
-  },
-  {
-    id: 'interview2',
-    session: {
-      id: 'session2',
-      userId: 'user123',
-      domainId: 'domain2',
-      difficultyId: 'beginner',
-      status: 'completed',
-      startTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      endTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 25 * 60 * 1000).toISOString(),
-      questions: [mockQuestions['domain2'][0]],
-      answers: [
-        {
-          id: 'answer3',
-          questionId: 'q6',
-          text: 'Supervised learning uses labeled data to train models while unsupervised learning discovers patterns in unlabeled data. Supervised learning is used for classification and regression, while unsupervised is used for clustering and association.',
-          feedback: {
-            score: 85,
-            strengths: ['Clear explanation of both concepts', 'Mentioned use cases for both'],
-            improvements: ['Could provide specific examples of algorithms', 'No mention of semi-supervised learning'],
-            summary: 'Strong answer that shows good understanding of the fundamental concepts.'
-          },
-          timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 5 * 60 * 1000).toISOString(),
-        }
-      ],
-      totalScore: 85,
-      summary: {
-        strengths: ['Good understanding of ML fundamentals', 'Clear and concise explanations'],
-        improvements: ['Should provide more specific examples', 'Could connect concepts to real-world applications'],
-        overallFeedback: 'You have a good grasp of basic data science concepts. To improve, focus on connecting theoretical knowledge with practical applications and be ready to provide specific examples of algorithms and use cases.'
-      }
-    },
-    domain: 'Data Science',
-    difficulty: 'Beginner',
-    date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toLocaleString(),
-    score: 85
-  }
+  // Existing mock interviews...
 ];
