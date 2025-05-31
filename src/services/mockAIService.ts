@@ -1,5 +1,6 @@
 import { Question, Feedback, InterviewDomain, DifficultyLevel } from '../types';
 import { mockQuestions } from '../data/mockData';
+import { geminiService } from './geminiService';
 
 export const mockAIService = {
   async getQuestions(domainId: string, difficultyId: string, count = 5): Promise<Question[]> {
@@ -14,10 +15,23 @@ export const mockAIService = {
   },
 
   async generateFeedback(question: Question, answer: string): Promise<Feedback> {
+    try {
+      return await geminiService.analyzeFeedback(
+        question.text,
+        answer,
+        question.sampleAnswer,
+        question.keyPoints
+      );
+    } catch (error) {
+      console.error('Gemini feedback failed, falling back to mock feedback:', error);
+      return this.generateMockFeedback(question, answer);
+    }
+  },
+
+  private generateMockFeedback(question: Question, answer: string): Feedback {
     // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Initialize feedback components
+    const minLength = 50;
+    const optimalLength = 200;
     let score = 0;
     const strengths: string[] = [];
     const improvements: string[] = [];
@@ -25,10 +39,6 @@ export const mockAIService = {
     // Compare with sample answer key points
     const keyPoints = question.keyPoints || [];
     const sampleAnswer = question.sampleAnswer || '';
-    
-    // Calculate initial score based on answer length and content
-    const minLength = 50;
-    const optimalLength = 200;
     
     if (answer.length >= minLength) {
       score += 20;
@@ -137,18 +147,25 @@ export const mockAIService = {
   },
 
   async generateNextQuestion(domainId: string, difficultyId: string, previousQuestions: Question[] = []): Promise<Question> {
-    const availableQuestions = await this.getQuestions(domainId, difficultyId);
-    const previousQuestionIds = previousQuestions.map(q => q.id);
-    const newQuestions = availableQuestions.filter(q => !previousQuestionIds.includes(q.id));
-    
-    if (newQuestions.length === 0) {
-      return this.generateDynamicQuestion(domainId, difficultyId);
+    try {
+      const domain = this.getDomainName(domainId);
+      const { text, sampleAnswer, keyPoints } = await geminiService.generateQuestion(domain, difficultyId);
+      
+      return {
+        id: `generated-${Date.now()}`,
+        text,
+        domain: domainId,
+        difficulty: difficultyId,
+        sampleAnswer,
+        keyPoints,
+      };
+    } catch (error) {
+      console.error('Gemini question generation failed, falling back to mock questions:', error);
+      return this.generateMockQuestion(domainId, difficultyId);
     }
-    
-    return newQuestions[Math.floor(Math.random() * newQuestions.length)];
   },
 
-  private async generateDynamicQuestion(domainId: string, difficultyId: string): Promise<Question> {
+  private generateMockQuestion(domainId: string, difficultyId: string): Question {
     const domain = this.getDomainName(domainId);
     const questions = {
       beginner: [
