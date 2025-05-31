@@ -1,129 +1,113 @@
 import { Question, Feedback, InterviewDomain, DifficultyLevel } from '../types';
 import { mockQuestions } from '../data/mockData';
 
-// This service simulates AI interactions
 export const mockAIService = {
-  // Get questions based on domain and difficulty
   async getQuestions(domainId: string, difficultyId: string, count = 5): Promise<Question[]> {
-    // In a real app, this would call an AI API
-    // For this mock, we'll return predefined questions
     const domainQuestions = mockQuestions[domainId] || [];
     const filteredQuestions = domainQuestions.filter(q => q.difficulty === difficultyId);
     
-    // If we don't have enough questions for the specified difficulty, return questions regardless of difficulty
     const questionsToReturn = filteredQuestions.length >= count 
       ? filteredQuestions 
       : domainQuestions;
     
-    // Shuffle and return requested number of questions
     return shuffle(questionsToReturn).slice(0, count);
   },
 
-  // Generate feedback for an answer
   async generateFeedback(question: Question, answer: string): Promise<Feedback> {
-    // In a real app, this would send the question and answer to an AI API
-    // For this mock, we'll simulate feedback generation
-    
     // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Generate random score between 60 and 95
-    const score = Math.floor(Math.random() * 36) + 60;
+    // Initialize feedback components
+    let score = 0;
+    const strengths: string[] = [];
+    const improvements: string[] = [];
     
-    // Simple mock feedback based on answer length and content
-    let strengths = [];
-    let improvements = [];
+    // Compare with sample answer key points
+    const keyPoints = question.keyPoints || [];
+    const sampleAnswer = question.sampleAnswer || '';
     
-    if (answer.length > 100) {
-      strengths.push('Provided a detailed response');
+    // Calculate initial score based on answer length and content
+    const minLength = 50;
+    const optimalLength = 200;
+    
+    if (answer.length >= minLength) {
+      score += 20;
+      strengths.push('Provided a substantial response');
     } else {
-      improvements.push('Answer could be more detailed');
+      improvements.push('Response could be more detailed');
     }
     
-    if (answer.includes('example')) {
-      strengths.push('Included practical examples');
+    // Check for key technical terms
+    const technicalTerms = sampleAnswer.toLowerCase().match(/\b\w+\b/g) || [];
+    const userTerms = answer.toLowerCase().match(/\b\w+\b/g) || [];
+    const termOverlap = technicalTerms.filter(term => userTerms.includes(term)).length;
+    
+    score += Math.min(40, (termOverlap / technicalTerms.length) * 40);
+    
+    if (termOverlap > technicalTerms.length * 0.7) {
+      strengths.push('Demonstrated strong technical knowledge');
     } else {
-      improvements.push('Could benefit from concrete examples');
+      improvements.push('Could include more technical terminology');
     }
     
-    if (answer.includes('advantage') || answer.includes('benefit')) {
-      strengths.push('Discussed advantages/benefits');
+    // Check for structure and clarity
+    if (answer.includes('example') || answer.includes('instance')) {
+      score += 20;
+      strengths.push('Provided practical examples');
     } else {
-      improvements.push('Consider discussing advantages/benefits');
+      improvements.push('Could benefit from specific examples');
     }
     
-    if (answer.includes('disadvantage') || answer.includes('limitation')) {
-      strengths.push('Addressed limitations');
+    // Check for completeness
+    const coveredPoints = keyPoints.filter(point => 
+      answer.toLowerCase().includes(point.toLowerCase())
+    ).length;
+    
+    score += Math.min(20, (coveredPoints / keyPoints.length) * 20);
+    
+    if (coveredPoints >= keyPoints.length * 0.7) {
+      strengths.push('Covered most key aspects of the topic');
     } else {
-      improvements.push('Could address potential limitations');
+      improvements.push('Could address more key aspects of the topic');
     }
     
-    // Add a random strength
-    const additionalStrengths = [
-      'Clear and concise explanation',
-      'Good technical accuracy',
-      'Well-structured response',
-      'Demonstrated good understanding of concepts',
-    ];
+    // Ensure score is between 0 and 100
+    score = Math.min(100, Math.max(0, Math.round(score)));
     
-    strengths.push(additionalStrengths[Math.floor(Math.random() * additionalStrengths.length)]);
-    
-    // Add a random improvement
-    const additionalImprovements = [
-      'Could use more technical terminology',
-      'Consider addressing edge cases',
-      'Could connect concepts to real-world applications',
-      'Consider the performance implications',
-    ];
-    
-    improvements.push(additionalImprovements[Math.floor(Math.random() * additionalImprovements.length)]);
-    
-    // Limit to max 3 strengths and 3 improvements
-    strengths = strengths.slice(0, 3);
-    improvements = improvements.slice(0, 3);
-    
-    // Generate summary based on score
+    // Generate appropriate summary based on score
     let summary = '';
     if (score >= 90) {
-      summary = 'Excellent answer that demonstrates strong understanding of the subject.';
+      summary = 'Excellent answer demonstrating comprehensive understanding and practical knowledge.';
     } else if (score >= 80) {
-      summary = 'Good answer with solid understanding. A few areas could be improved.';
+      summary = 'Strong answer with good technical depth. Minor improvements possible.';
     } else if (score >= 70) {
-      summary = 'Satisfactory answer that covers basics but lacks depth in some areas.';
+      summary = 'Good answer showing basic understanding. Could be enhanced with more detail and examples.';
     } else {
-      summary = 'Basic answer that needs improvement in several areas.';
+      summary = 'Answer shows some understanding but needs significant improvement in depth and technical accuracy.';
     }
     
     return {
       score,
-      strengths,
-      improvements,
+      strengths: strengths.slice(0, 3),
+      improvements: improvements.slice(0, 3),
       summary
     };
   },
-  
-  // Generate a final summary for the entire interview
+
   async generateSessionSummary(domainId: string, answers: { question: Question, answer: string, feedback: Feedback }[]): Promise<{
     strengths: string[];
     improvements: string[];
     overallFeedback: string;
   }> {
-    // In a real app, this would analyze all answers and provide comprehensive feedback
-    // For this mock, we'll generate a simple summary
-    
-    // Calculate average score
     const totalScore = answers.reduce((sum, item) => sum + item.feedback.score, 0);
     const averageScore = Math.round(totalScore / answers.length);
     
-    // Collect all strengths and improvements
     const allStrengths = answers.flatMap(item => item.feedback.strengths);
     const allImprovements = answers.flatMap(item => item.feedback.improvements);
     
-    // Count occurrences of each strength and improvement
     const strengthCounts = countOccurrences(allStrengths);
     const improvementCounts = countOccurrences(allImprovements);
     
-    // Sort by count and take top 3
     const topStrengths = Object.entries(strengthCounts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
@@ -134,16 +118,15 @@ export const mockAIService = {
       .slice(0, 3)
       .map(([improvement]) => improvement);
     
-    // Generate overall feedback based on average score
     let overallFeedback = '';
     if (averageScore >= 90) {
-      overallFeedback = `Excellent performance in this ${getDomainName(domainId)} interview! Your answers demonstrated strong technical knowledge and communication skills. You're well-prepared for real interviews in this field.`;
+      overallFeedback = `Excellent performance in this ${this.getDomainName(domainId)} interview! Your answers demonstrated strong technical knowledge and communication skills. You're well-prepared for real interviews in this field.`;
     } else if (averageScore >= 80) {
-      overallFeedback = `Good performance in this ${getDomainName(domainId)} interview. You have solid knowledge but could improve in a few areas. With some additional preparation, you should perform well in real interviews.`;
+      overallFeedback = `Good performance in this ${this.getDomainName(domainId)} interview. You have solid knowledge but could improve in a few areas. With some additional preparation, you should perform well in real interviews.`;
     } else if (averageScore >= 70) {
-      overallFeedback = `Satisfactory performance in this ${getDomainName(domainId)} interview. While you covered the basics, there are several areas where you could deepen your knowledge and improve your responses.`;
+      overallFeedback = `Satisfactory performance in this ${this.getDomainName(domainId)} interview. While you covered the basics, there are several areas where you could deepen your knowledge and improve your responses.`;
     } else {
-      overallFeedback = `This ${getDomainName(domainId)} interview revealed several areas for improvement. We recommend focusing on strengthening your fundamentals and practicing more before a real interview.`;
+      overallFeedback = `This ${this.getDomainName(domainId)} interview revealed several areas for improvement. We recommend focusing on strengthening your fundamentals and practicing more before a real interview.`;
     }
     
     return {
@@ -152,28 +135,64 @@ export const mockAIService = {
       overallFeedback
     };
   },
-  
-  // Simulate AI question generation
+
   async generateNextQuestion(domainId: string, difficultyId: string, previousQuestions: Question[] = []): Promise<Question> {
-    const availableQuestions = await this.getQuestions(domainId, difficultyId, 10);
+    const availableQuestions = await this.getQuestions(domainId, difficultyId);
     const previousQuestionIds = previousQuestions.map(q => q.id);
     const newQuestions = availableQuestions.filter(q => !previousQuestionIds.includes(q.id));
     
     if (newQuestions.length === 0) {
-      // If we've exhausted all questions, create a generic one
-      return {
-        id: `generated-${Date.now()}`,
-        text: `Can you explain a complex ${getDomainName(domainId)} concept that you've worked with recently?`,
-        domain: domainId,
-        difficulty: difficultyId,
-      };
+      return this.generateDynamicQuestion(domainId, difficultyId);
     }
     
-    return newQuestions[0];
+    return newQuestions[Math.floor(Math.random() * newQuestions.length)];
+  },
+
+  private async generateDynamicQuestion(domainId: string, difficultyId: string): Promise<Question> {
+    const domain = this.getDomainName(domainId);
+    const questions = {
+      beginner: [
+        `Explain the fundamental concepts of ${domain}`,
+        `What are the key tools used in ${domain}?`,
+        `Describe the basic workflow in ${domain}`,
+      ],
+      intermediate: [
+        `How would you implement a complex feature in ${domain}?`,
+        `Discuss the best practices in ${domain}`,
+        `Compare different approaches in ${domain}`,
+      ],
+      expert: [
+        `Design a scalable system for ${domain}`,
+        `How would you optimize performance in ${domain}?`,
+        `Solve a complex problem in ${domain}`,
+      ],
+    };
+    
+    const questionList = questions[difficultyId as keyof typeof questions];
+    const randomQuestion = questionList[Math.floor(Math.random() * questionList.length)];
+    
+    return {
+      id: `generated-${Date.now()}`,
+      text: randomQuestion,
+      domain: domainId,
+      difficulty: difficultyId,
+      sampleAnswer: 'This is a dynamically generated question. The answer should demonstrate understanding of the domain and difficulty level.',
+      keyPoints: ['Technical knowledge', 'Practical application', 'Problem-solving approach', 'Best practices'],
+    };
+  },
+
+  private getDomainName(domainId: string): string {
+    const domains: Record<string, string> = {
+      'web-dev': 'Web Development',
+      'data-science': 'Data Science',
+      'mobile-dev': 'Mobile Development',
+      'cloud-computing': 'Cloud Computing',
+      'cybersecurity': 'Cybersecurity',
+    };
+    return domains[domainId] || 'Technical';
   }
 };
 
-// Helper function to shuffle an array
 function shuffle<T>(array: T[]): T[] {
   const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
@@ -183,22 +202,9 @@ function shuffle<T>(array: T[]): T[] {
   return newArray;
 }
 
-// Helper function to count occurrences
 function countOccurrences<T extends string>(items: T[]): Record<T, number> {
   return items.reduce((acc, item) => {
     acc[item] = (acc[item] || 0) + 1;
     return acc;
   }, {} as Record<T, number>);
-}
-
-// Helper function to get domain name
-function getDomainName(domainId: string): string {
-  switch (domainId) {
-    case 'domain1': return 'Web Development';
-    case 'domain2': return 'Data Science';
-    case 'domain3': return 'Product Management';
-    case 'domain4': return 'UX Design';
-    case 'domain5': return 'DevOps';
-    default: return 'Technical';
-  }
 }
