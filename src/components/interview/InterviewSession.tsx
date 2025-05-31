@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Send, RefreshCcw } from 'lucide-react';
+import { Mic, MicOff, Send, RefreshCcw, CheckCircle, AlertCircle } from 'lucide-react';
 import { Question, Answer, Feedback } from '../../types';
 import { mockAIService } from '../../services/mockAIService';
 import { cn } from '../../utils/cn';
@@ -170,6 +170,12 @@ const InterviewSession: React.FC<InterviewSessionProps> = ({
     }
   };
 
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-amber-600';
+    return 'text-red-600';
+  };
+
   if (questions.length === 0) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -179,127 +185,150 @@ const InterviewSession: React.FC<InterviewSessionProps> = ({
   }
 
   return (
-    <div className="card max-w-3xl mx-auto">
-      <div className="p-4 border-b">
-        <h3 className="text-lg font-medium text-center">Interview in Progress</h3>
+    <div className="card max-w-4xl mx-auto">
+      <div className="p-4 border-b bg-gradient-to-r from-primary-500 to-primary-600">
+        <h3 className="text-lg font-medium text-center text-white">Interview in Progress</h3>
       </div>
       
-      <div className="h-[500px] overflow-y-auto p-4 flex flex-col space-y-4">
-        {questions.slice(0, currentQuestionIndex + 1).map((question, index) => (
-          <React.Fragment key={question.id}>
-            {/* AI Question */}
-            <div className="flex items-start">
-              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center mr-2 flex-shrink-0">
-                <span className="text-xs font-medium text-primary-700">AI</span>
-              </div>
-              <div className="bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[85%]">
-                <p className="text-gray-800">{question.text}</p>
-              </div>
-            </div>
-            
-            {/* User Answer */}
-            {answers[index] && (
-              <div className="flex items-start flex-row-reverse">
-                <div className="w-8 h-8 rounded-full bg-secondary-100 flex items-center justify-center ml-2 flex-shrink-0">
-                  <span className="text-xs font-medium text-secondary-700">You</span>
+      <div className="h-[600px] overflow-y-auto p-4 bg-gray-50">
+        <div className="flex flex-col space-y-6">
+          {questions.slice(0, currentQuestionIndex + 1).map((question, index) => (
+            <div key={question.id} className="space-y-4">
+              {/* AI Question */}
+              <div className="flex items-start animate-fade-in">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center mr-3 shadow-lg">
+                  <span className="text-sm font-medium text-white">AI</span>
                 </div>
-                <div className="bg-secondary-50 rounded-lg rounded-tr-none p-3 max-w-[85%]">
-                  <p className="text-gray-800">{answers[index].text}</p>
-                </div>
-              </div>
-            )}
-            
-            {/* Feedback */}
-            {answers[index] && (
-              <div className="ml-10 mr-10">
-                <div className="bg-green-50 border-l-4 border-green-400 rounded-r-lg p-3">
-                  <div className="flex items-center mb-2">
-                    <span className="text-sm font-semibold text-green-700">Score: </span>
-                    <span className="ml-2 text-sm font-bold text-green-800">{answers[index].feedback.score}%</span>
+                <div className="flex-1">
+                  <div className="bg-white rounded-2xl rounded-tl-none p-4 shadow-md">
+                    <p className="text-gray-800 leading-relaxed">{question.text}</p>
                   </div>
-                  
-                  {answers[index].feedback.strengths.length > 0 && (
-                    <div className="mb-2">
-                      <span className="text-sm font-semibold text-green-700">Strengths:</span>
-                      <ul className="list-disc pl-5 mt-1">
-                        {answers[index].feedback.strengths.map((strength, i) => (
-                          <li key={i} className="text-sm text-gray-700">{strength}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {answers[index].feedback.improvements.length > 0 && (
-                    <div className="mb-2">
-                      <span className="text-sm font-semibold text-amber-700">Areas to improve:</span>
-                      <ul className="list-disc pl-5 mt-1">
-                        {answers[index].feedback.improvements.map((improvement, i) => (
-                          <li key={i} className="text-sm text-gray-700">{improvement}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  <p className="text-sm text-gray-700 mt-2">{answers[index].feedback.summary}</p>
                 </div>
               </div>
-            )}
-          </React.Fragment>
-        ))}
-        
-        {isProcessing && currentQuestionIndex === questions.length - 1 && !feedback && (
-          <div className="flex items-center justify-center py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary-500"></div>
-            <span className="ml-2 text-sm text-gray-500">Analyzing your response...</span>
-          </div>
-        )}
+              
+              {/* User Answer */}
+              {answers[index] && (
+                <div className="flex items-start flex-row-reverse animate-fade-in">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-400 to-secondary-600 flex items-center justify-center ml-3 shadow-lg">
+                    <span className="text-sm font-medium text-white">You</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="bg-white rounded-2xl rounded-tr-none p-4 shadow-md">
+                      <p className="text-gray-800 leading-relaxed">{answers[index].text}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Enhanced Feedback Section */}
+              {answers[index]?.feedback && (
+                <div className="mx-12 animate-fade-in">
+                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-green-100">
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 border-b border-green-100">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-semibold text-gray-800">Feedback Analysis</h4>
+                        <div className="flex items-center">
+                          <span className="text-sm font-medium text-gray-600 mr-2">Score:</span>
+                          <span className={`text-lg font-bold ${getScoreColor(answers[index].feedback.score)}`}>
+                            {answers[index].feedback.score}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 space-y-4">
+                      {/* Strengths */}
+                      <div>
+                        <h5 className="text-sm font-semibold text-green-700 mb-2">Strengths</h5>
+                        <ul className="space-y-2">
+                          {answers[index].feedback.strengths.map((strength, i) => (
+                            <li key={i} className="flex items-start">
+                              <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                              <span className="text-gray-700">{strength}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      {/* Areas to Improve */}
+                      <div>
+                        <h5 className="text-sm font-semibold text-amber-700 mb-2">Areas to Improve</h5>
+                        <ul className="space-y-2">
+                          {answers[index].feedback.improvements.map((improvement, i) => (
+                            <li key={i} className="flex items-start">
+                              <AlertCircle className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0" />
+                              <span className="text-gray-700">{improvement}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      {/* Summary */}
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                        <p className="text-gray-700 italic">
+                          "{answers[index].feedback.summary}"
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
         
         <div ref={messagesEndRef} />
       </div>
       
+      {/* Input Section */}
       {!isComplete && (
-        <div className="p-4 border-t">
+        <div className="p-4 border-t bg-white">
           <div className="flex items-center">
             <button
               onClick={toggleRecording}
               className={cn(
-                "p-2 rounded-full mr-2", 
+                "p-3 rounded-full mr-3",
                 isRecording 
                   ? "bg-red-100 text-red-600 hover:bg-red-200" 
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200",
                 !recognitionSupported && "opacity-50 cursor-not-allowed"
               )}
               disabled={!recognitionSupported || isProcessing}
-              title={recognitionSupported ? "Toggle voice input" : "Speech recognition not supported in your browser"}
+              title={recognitionSupported ? "Toggle voice input" : "Speech recognition not supported"}
             >
-              {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+              {isRecording ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
             </button>
+            
             <div className="flex-1 relative">
               <textarea
                 value={currentAnswer}
                 onChange={(e) => setCurrentAnswer(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Type your answer here..."
-                className="w-full p-3 pr-12 border rounded-lg resize-none h-20 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full p-4 pr-12 border rounded-xl resize-none h-24 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-gray-50"
                 disabled={isProcessing}
               />
               <button
                 onClick={handleSendAnswer}
-                className="absolute right-2 bottom-2 p-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={cn(
+                  "absolute right-3 bottom-3 p-3 rounded-lg transition-all duration-200",
+                  currentAnswer.trim() && !isProcessing
+                    ? "bg-primary-500 text-white hover:bg-primary-600"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                )}
                 disabled={!currentAnswer.trim() || isProcessing}
               >
                 <Send className="h-5 w-5" />
               </button>
             </div>
           </div>
+          
           {isRecording && (
-            <div className="text-xs text-center mt-2 text-red-600 animate-pulse">
-              Recording... Click the microphone icon again to stop
-            </div>
-          )}
-          {!recognitionSupported && (
-            <div className="text-xs text-center mt-2 text-gray-500">
-              Voice input is not supported in your browser. Please type your answers.
+            <div className="text-center mt-2">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-600">
+                <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse mr-2" />
+                Recording... Click the microphone to stop
+              </span>
             </div>
           )}
         </div>
