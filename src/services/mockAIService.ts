@@ -28,7 +28,7 @@ export const mockAIService = {
     }
   },
 
-  private generateMockFeedback(question: Question, answer: string): Feedback {
+  generateMockFeedback(question: Question, answer: string): Feedback {
     // Simulate processing time
     const minLength = 50;
     const optimalLength = 200;
@@ -165,7 +165,7 @@ export const mockAIService = {
     }
   },
 
-  private generateMockQuestion(domainId: string, difficultyId: string): Question {
+  generateMockQuestion(domainId: string, difficultyId: string): Question {
     const domain = this.getDomainName(domainId);
     const questions = {
       beginner: [
@@ -198,7 +198,7 @@ export const mockAIService = {
     };
   },
 
-  private getDomainName(domainId: string): string {
+  getDomainName(domainId: string): string {
     const domains: Record<string, string> = {
       'web-dev': 'Web Development',
       'data-science': 'Data Science',
